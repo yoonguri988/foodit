@@ -10,9 +10,16 @@ function App() {
   // 네트워크
   const [isLoading, setIsLoading] = useState(false);
   const [loadingErr, setLoadingErr] = useState(null);
+  // 검색
+  const [search, setSearch] = useState("");
 
   const handleNewestClick = () => setOrder("createdAt");
   const handleCalorieClick = () => setOrder("calorie");
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    setSearch(e.target["search"].value);
+  };
 
   const handleDelete = (id) => {
     const nextItems = items.filter((item) => item.id !== id);
@@ -40,17 +47,21 @@ function App() {
   };
 
   const handleLoadMore = () => {
-    handleLoad({ order, cursor });
+    handleLoad({ order, cursor, search });
   };
 
   useEffect(() => {
-    handleLoad({ order });
-  }, [order]);
+    handleLoad({ order, search });
+  }, [order, search]);
 
   return (
     <div className="App">
       <button onClick={handleNewestClick}>최신순</button>
       <button onClick={handleCalorieClick}>칼로리순</button>
+      <form onSubmit={handleSearchSubmit}>
+        <input name="search" />
+        <button type="submit">검색</button>
+      </form>
       <FoodList items={items} onDelete={handleDelete} />
       {cursor && (
         <button disabled={isLoading} onClick={handleLoadMore}>
