@@ -6,14 +6,24 @@ const INIT = {
   content: "",
 };
 
+function sanitize(type, value) {
+  switch (type) {
+    case "number":
+      return Number(value) || 0;
+
+    default:
+      return value;
+  }
+}
+
 function FoodForm() {
   const [values, setValues] = useState(INIT);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type } = e.target;
     setValues((prevValues) => ({
       ...prevValues,
-      [name]: value,
+      [name]: sanitize(type, value),
     }));
   };
 
