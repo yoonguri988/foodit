@@ -12,13 +12,19 @@ export function LocaleProvider({ defValue, children }) {
 }
 
 export function useLocale() {
-  const { locale } = useContext(LocaleContext);
+  const context = useContext(LocaleContext);
+  if (!context) {
+    throw new Error("반드시 LocaleProvider 안에서 사용해야 합니다");
+  }
+  const { locale } = context;
   return locale;
 }
 
 export function useSetLocale() {
-  const { setLocale } = useContext(LocaleContext);
+  const context = useContext(LocaleContext);
+  if (!context) {
+    throw new Error("반드시 LocaleProvider 안에서 사용해야 합니다");
+  }
+  const { setLocale } = context;
   return setLocale;
 }
-
-export default LocaleContext;
