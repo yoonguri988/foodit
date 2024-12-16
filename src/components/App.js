@@ -46,12 +46,16 @@ function App() {
     async (options) => {
       const result = await getFoodsAsync(options);
       if (!result) return;
+
       const {
         foods,
         paging: { nextCursor },
       } = result;
-      if (!options.cursor) setItems(foods);
-      else setItems((prevItem) => [...prevItem, ...foods]);
+      if (!options.cursor) {
+        setItems(foods);
+      } else {
+        setItems((prevItem) => [...prevItem, ...foods]);
+      }
       setCursor(nextCursor);
     },
     [getFoodsAsync]
@@ -76,6 +80,7 @@ function App() {
     });
   };
   const sortedItems = items.sort((a, b) => b[order] - a[order]);
+
   useEffect(() => {
     handleLoad({ order, search });
   }, [order, search, handleLoad]);
