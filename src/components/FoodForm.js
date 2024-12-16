@@ -1,6 +1,5 @@
 import { useState } from "react";
 import FileInput from "./FileInput";
-import { createFood } from "../api";
 
 const INIT = {
   imgFile: "",
@@ -19,8 +18,14 @@ function sanitize(type, value) {
   }
 }
 
-function FoodForm({ onSubmitSuccess }) {
-  const [values, setValues] = useState(INIT);
+function FoodForm({
+  initValues = INIT,
+  initPreview = "",
+  onSubmit,
+  onSubmitSuccess,
+  onCancel,
+}) {
+  const [values, setValues] = useState(initValues);
   // 로딩과 에러 처리
   const [isLoading, setIsLoading] = useState(false);
   const [submittingErr, setSubmittingErr] = useState(null);
@@ -48,7 +53,7 @@ function FoodForm({ onSubmitSuccess }) {
     try {
       setIsLoading(true);
       setSubmittingErr(null);
-      result = await createFood(formData);
+      result = await onSubmit(formData);
     } catch (e) {
       setSubmittingErr(e);
       return;
@@ -65,6 +70,7 @@ function FoodForm({ onSubmitSuccess }) {
       <FileInput
         name="imgFile"
         value={values.imgFile}
+        initPreview={initPreview}
         onChange={handleChange}
       />
       <input name="title" value={values.title} onChange={handleInputChange} />
@@ -82,6 +88,7 @@ function FoodForm({ onSubmitSuccess }) {
       <button disabled={isLoading} type="submit">
         확인
       </button>
+      {onCancel && <button onClick={onCancel}>취소</button>}
       {submittingErr?.message && <span>{submittingErr.message}</span>}
     </form>
   );
