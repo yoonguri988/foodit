@@ -32,3 +32,8 @@
 - 리액트 Hook
   1. 나만의 Hook으로 코드 정리
   2. useCallback
+
+## 24.12.17 issue
+
+- LocaleContext 추가하기
+- 다국어 기능 만들기

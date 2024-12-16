@@ -3,7 +3,9 @@ import { useCallback, useEffect, useState } from "react";
 import { createFood, updateFood, getFoods, deleteFood } from "../api";
 import FoodList from "./FoodList";
 import FoodForm from "./FoodForm";
-import useAsync from "./hooks/useAsync";
+import useAsync from "../hooks/useAsync";
+import LocaleSelect from "./LocaleSelect";
+import { LocaleProvider } from "../contexts/LocaleContext";
 
 function App() {
   const [order, setOrder] = useState("createdAt");
@@ -71,27 +73,30 @@ function App() {
   }, [order, search, handleLoad]);
 
   return (
-    <div>
-      <FoodForm onSubmit={createFood} onSubmitSuccess={handleCreateSuccess} />
-      <button onClick={handleNewestClick}>최신순</button>
-      <button onClick={handleCalorieClick}>칼로리순</button>
-      <form onSubmit={handleSearchSubmit}>
-        <input name="search" />
-        <button type="submit">검색</button>
-      </form>
-      <FoodList
-        items={items}
-        onUpdate={updateFood}
-        onUpdateSuccess={handleUpdateSuccess}
-        onDelete={handleDelete}
-      />
-      {cursor && (
-        <button disabled={pending} onClick={handleLoadMore}>
-          더 보기
-        </button>
-      )}
-      {error?.message && <p>{error.message}</p>}
-    </div>
+    <LocaleProvider defValue="ko">
+      <div>
+        <LocaleSelect />
+        <FoodForm onSubmit={createFood} onSubmitSuccess={handleCreateSuccess} />
+        <button onClick={handleNewestClick}>최신순</button>
+        <button onClick={handleCalorieClick}>칼로리순</button>
+        <form onSubmit={handleSearchSubmit}>
+          <input name="search" />
+          <button type="submit">검색</button>
+        </form>
+        <FoodList
+          items={items}
+          onUpdate={updateFood}
+          onUpdateSuccess={handleUpdateSuccess}
+          onDelete={handleDelete}
+        />
+        {cursor && (
+          <button disabled={pending} onClick={handleLoadMore}>
+            더 보기
+          </button>
+        )}
+        {error?.message && <p>{error.message}</p>}
+      </div>
+    </LocaleProvider>
   );
 }
 

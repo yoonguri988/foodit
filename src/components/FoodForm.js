@@ -1,6 +1,6 @@
 import { useState } from "react";
 import FileInput from "./FileInput";
-import useAsync from "./hooks/useAsync";
+import useAsync from "../hooks/useAsync";
 
 const INIT = {
   imgFile: "",
