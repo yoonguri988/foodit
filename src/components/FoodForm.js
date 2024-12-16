@@ -1,6 +1,8 @@
+import "./FoodForm.css";
 import { useState } from "react";
 import FileInput from "./FileInput";
-import useAsync from "./hooks/useAsync";
+import useAsync from "../hooks/useAsync";
+import useTranslate from "../hooks/useTranslate";
 
 const INIT = {
   imgFile: "",
@@ -32,6 +34,8 @@ function FoodForm({
   // const [isLoading, setIsLoading] = useState(false);
   // const [submittingErr, setSubmittingErr] = useState(null);
 
+  const t = useTranslate();
+
   const handleChange = (name, value) => {
     setValues((prevValues) => ({
       ...prevValues,
@@ -61,30 +65,52 @@ function FoodForm({
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form className="FoodForm" onSubmit={handleSubmit}>
       <FileInput
+        className="FoodForm-preview"
         name="imgFile"
         value={values.imgFile}
         initPreview={initPreview}
         onChange={handleChange}
       />
-      <input name="title" value={values.title} onChange={handleInputChange} />
-      <input
-        type="number"
-        name="calorie"
-        value={values.calorie}
-        onChange={handleInputChange}
-      />
-      <textarea
-        name="content"
-        value={values.content}
-        onChange={handleInputChange}
-      ></textarea>
-      <button disabled={isSubmit} type="submit">
-        확인
-      </button>
-      {onCancel && <button onClick={onCancel}>취소</button>}
-      {submitErr?.message && <span>{submitErr.message}</span>}
+      <div className="FoodForm-rows">
+        <div className="FoodForm-title-calorie">
+          <input
+            className="FoodForm-title"
+            name="title"
+            placeholder={t("title placeholder")}
+            value={values.title}
+            onChange={handleInputChange}
+          />
+          <input
+            type="number"
+            className="FoodForm-calorie"
+            name="calorie"
+            placeholder={t("calorie placeholder")}
+            value={values.calorie}
+            onChange={handleInputChange}
+          />
+          <button
+            className="FoodForm-submit-button"
+            disabled={isSubmit}
+            type="submit"
+          >
+            {t("confirm button")}
+          </button>
+        </div>
+        <textarea
+          className="FoodForm-content"
+          name="content"
+          value={values.content}
+          onChange={handleInputChange}
+        ></textarea>
+        {onCancel && (
+          <button className="FoodForm-cancel-button" onClick={onCancel}>
+            {t("cancel button")}
+          </button>
+        )}
+        {submitErr?.message && <span>{submitErr.message}</span>}
+      </div>
     </form>
   );
 }

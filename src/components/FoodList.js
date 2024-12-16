@@ -1,6 +1,7 @@
 import { useState } from "react";
-import "./FoodList.css";
 import FoodForm from "./FoodForm";
+import useTranslate from "../hooks/useTranslate";
+import "./FoodList.css";
 
 function formatDate(value) {
   const date = new Date(value);
@@ -8,6 +9,7 @@ function formatDate(value) {
 }
 
 function FoodListItem({ item, onDelete, onEdit }) {
+  const t = useTranslate();
   const { imgUrl, title, calorie, content, createdAt } = item;
 
   const handleDeleteClick = () => onDelete(item.id);
@@ -15,13 +17,31 @@ function FoodListItem({ item, onDelete, onEdit }) {
 
   return (
     <div className="FoodListItem">
-      <img src={imgUrl} alt={title} />
-      <div>{title}</div>
-      <div>{calorie}</div>
-      <div>{content}</div>
-      <div>{formatDate(createdAt)}</div>
-      <button onClick={handleDeleteClick}>삭제</button>
-      <button onClick={handleEditClick}>수정</button>
+      <img className="FoodListItem-preview" src={imgUrl} alt={title} />
+      <div className="FoodListItem-rows">
+        <div className="FoodListItem-title-calorie">
+          <div className="FoodListItem-title">{title}</div>
+          <div className="FoodListItem-calorie">{calorie}kcal</div>
+        </div>
+        <div className="FoodListItem-content">{content}</div>
+        <div className="FoodListItem-date-buttons">
+          <div className="FoodListItem-date">{formatDate(createdAt)}</div>
+          <div className="FoodListItem-buttons">
+            <button
+              className="FoodListItem-edit-button"
+              onClick={handleDeleteClick}
+            >
+              {t("delete button")}
+            </button>
+            <button
+              className="FoodListItem-delete-button"
+              onClick={handleEditClick}
+            >
+              {t("edit button")}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -3,7 +3,15 @@ import { useCallback, useEffect, useState } from "react";
 import { createFood, updateFood, getFoods, deleteFood } from "../api";
 import FoodList from "./FoodList";
 import FoodForm from "./FoodForm";
-import useAsync from "./hooks/useAsync";
+import useAsync from "../hooks/useAsync";
+import LocaleSelect from "./LocaleSelect";
+import useTranslate from "../hooks/useTranslate";
+
+import bgImg from "../assets/background.png";
+import logoImg from "../assets/logo.png";
+import logoTextImg from "../assets/logo-text.png";
+import searchImg from "../assets/ic-search.png";
+import AppSortButton from "./AppSortButton";
 
 function App() {
   const [order, setOrder] = useState("createdAt");
@@ -15,6 +23,8 @@ function App() {
   // const [loadingErr, setLoadingErr] = useState(null);
   // 검색
   const [search, setSearch] = useState("");
+
+  const t = useTranslate();
 
   const handleNewestClick = () => setOrder("createdAt");
   const handleCalorieClick = () => setOrder("calorie");
@@ -36,12 +46,16 @@ function App() {
     async (options) => {
       const result = await getFoodsAsync(options);
       if (!result) return;
+
       const {
         foods,
         paging: { nextCursor },
       } = result;
-      if (!options.cursor) setItems(foods);
-      else setItems((prevItem) => [...prevItem, ...foods]);
+      if (!options.cursor) {
+        setItems(foods);
+      } else {
+        setItems((prevItem) => [...prevItem, ...foods]);
+      }
       setCursor(nextCursor);
     },
     [getFoodsAsync]
@@ -65,32 +79,75 @@ function App() {
       ];
     });
   };
+  const sortedItems = items.sort((a, b) => b[order] - a[order]);
 
   useEffect(() => {
     handleLoad({ order, search });
   }, [order, search, handleLoad]);
 
   return (
-    <div>
-      <FoodForm onSubmit={createFood} onSubmitSuccess={handleCreateSuccess} />
-      <button onClick={handleNewestClick}>최신순</button>
-      <button onClick={handleCalorieClick}>칼로리순</button>
-      <form onSubmit={handleSearchSubmit}>
-        <input name="search" />
-        <button type="submit">검색</button>
-      </form>
-      <FoodList
-        items={items}
-        onUpdate={updateFood}
-        onUpdateSuccess={handleUpdateSuccess}
-        onDelete={handleDelete}
-      />
-      {cursor && (
-        <button disabled={pending} onClick={handleLoadMore}>
-          더 보기
-        </button>
-      )}
-      {error?.message && <p>{error.message}</p>}
+    <div className="App" style={{ backgroundImage: `url("${bgImg}")` }}>
+      <div className="App-nav">
+        <img src={logoImg} alt="logo" />
+      </div>
+      <div className="App-container">
+        <div className="App-FoodForm">
+          <FoodForm
+            onSubmit={createFood}
+            onSubmitSuccess={handleCreateSuccess}
+          />
+        </div>
+        <div className="App-filter">
+          <div className="App-search">
+            <form onSubmit={handleSearchSubmit}>
+              <input name="search" />
+              <button className="App-search-button" type="submit">
+                <img src={searchImg} alt="search" />
+              </button>
+            </form>
+          </div>
+          <div className="App-order">
+            <AppSortButton
+              selected={order === "createdAt"}
+              onClick={handleNewestClick}
+            >
+              {t("newest")}
+            </AppSortButton>
+            <AppSortButton
+              selected={order === "calorie"}
+              onClick={handleCalorieClick}
+            >
+              {t("sort by calorie")}
+            </AppSortButton>
+          </div>
+        </div>
+        <FoodList
+          className="App-FoodList"
+          items={sortedItems}
+          onUpdate={updateFood}
+          onUpdateSuccess={handleUpdateSuccess}
+          onDelete={handleDelete}
+        />
+        {cursor && (
+          <button
+            className="App-load-more-button"
+            disabled={pending}
+            onClick={handleLoadMore}
+          >
+            {t("load more")}
+          </button>
+        )}
+        {error?.message && <p>{error.message}</p>}
+      </div>
+      <div className="App-footer">
+        <div className="App-footer-container">
+          <img src={logoTextImg} alt="Foodit" />
+          <LocaleSelect />
+          <div className="App-footer-menu">
+            {t("terms of service")} | {t("privacy policy")}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
