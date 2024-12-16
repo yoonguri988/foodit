@@ -1,16 +1,18 @@
 import "./App.css";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { createFood, updateFood, getFoods, deleteFood } from "../api";
 import FoodList from "./FoodList";
 import FoodForm from "./FoodForm";
+import useAsync from "./hooks/useAsync";
 
 function App() {
   const [order, setOrder] = useState("createdAt");
   const [items, setItems] = useState([]);
   const [cursor, setCursor] = useState(null);
   // 네트워크
-  const [isLoading, setIsLoading] = useState(false);
-  const [loadingErr, setLoadingErr] = useState(null);
+  const [pending, error, getFoodsAsync] = useAsync(getFoods);
+  // const [isLoading, setIsLoading] = useState(false);
+  // const [loadingErr, setLoadingErr] = useState(null);
   // 검색
   const [search, setSearch] = useState("");
 
@@ -30,25 +32,20 @@ function App() {
     setItems(nextItems);
   };
 
-  const handleLoad = async (options) => {
-    let result;
-    try {
-      setIsLoading(true);
-      result = await getFoods(options);
-    } catch (e) {
-      setLoadingErr(e);
-      return;
-    } finally {
-      setIsLoading(false);
-    }
-    const {
-      foods,
-      paging: { nextCursor },
-    } = result;
-    if (!options.cursor) setItems(foods);
-    else setItems((prevItem) => [...prevItem, ...foods]);
-    setCursor(nextCursor);
-  };
+  const handleLoad = useCallback(
+    async (options) => {
+      const result = await getFoodsAsync(options);
+      if (!result) return;
+      const {
+        foods,
+        paging: { nextCursor },
+      } = result;
+      if (!options.cursor) setItems(foods);
+      else setItems((prevItem) => [...prevItem, ...foods]);
+      setCursor(nextCursor);
+    },
+    [getFoodsAsync]
+  );
 
   const handleLoadMore = () => {
     handleLoad({ order, cursor, search });
@@ -71,7 +68,7 @@ function App() {
 
   useEffect(() => {
     handleLoad({ order, search });
-  }, [order, search]);
+  }, [order, search, handleLoad]);
 
   return (
     <div>
@@ -89,11 +86,11 @@ function App() {
         onDelete={handleDelete}
       />
       {cursor && (
-        <button disabled={isLoading} onClick={handleLoadMore}>
+        <button disabled={pending} onClick={handleLoadMore}>
           더 보기
         </button>
       )}
-      {loadingErr?.message && <p>{loadingErr.message}</p>}
+      {error?.message && <p>{error.message}</p>}
     </div>
   );
 }

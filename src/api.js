@@ -1,4 +1,4 @@
-const API_NUM = 1717;
+const API_NUM = 5546;
 const ADDRESS = `https://learn.codeit.kr/${API_NUM}/foods`;
 export async function getFoods({
   order = "",

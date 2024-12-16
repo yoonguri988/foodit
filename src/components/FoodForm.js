@@ -1,5 +1,6 @@
 import { useState } from "react";
 import FileInput from "./FileInput";
+import useAsync from "./hooks/useAsync";
 
 const INIT = {
   imgFile: "",
@@ -27,8 +28,9 @@ function FoodForm({
 }) {
   const [values, setValues] = useState(initValues);
   // 로딩과 에러 처리
-  const [isLoading, setIsLoading] = useState(false);
-  const [submittingErr, setSubmittingErr] = useState(null);
+  const [isSubmit, submitErr, onSubmitAsync] = useAsync(onSubmit);
+  // const [isLoading, setIsLoading] = useState(false);
+  // const [submittingErr, setSubmittingErr] = useState(null);
 
   const handleChange = (name, value) => {
     setValues((prevValues) => ({
@@ -49,17 +51,10 @@ function FoodForm({
     formData.append("title", values.title);
     formData.append("calorie", values.calorie);
     formData.append("content", values.content);
-    let result;
-    try {
-      setIsLoading(true);
-      setSubmittingErr(null);
-      result = await onSubmit(formData);
-    } catch (e) {
-      setSubmittingErr(e);
-      return;
-    } finally {
-      setIsLoading(false);
-    }
+
+    const result = await onSubmitAsync(formData);
+    if (!result) return;
+
     const { food } = result;
     onSubmitSuccess(food);
     setValues(INIT);
@@ -85,11 +80,11 @@ function FoodForm({
         value={values.content}
         onChange={handleInputChange}
       ></textarea>
-      <button disabled={isLoading} type="submit">
+      <button disabled={isSubmit} type="submit">
         확인
       </button>
       {onCancel && <button onClick={onCancel}>취소</button>}
-      {submittingErr?.message && <span>{submittingErr.message}</span>}
+      {submitErr?.message && <span>{submitErr.message}</span>}
     </form>
   );
 }
